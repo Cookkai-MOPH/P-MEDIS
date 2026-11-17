@@ -3,16 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#0f4c81">
+  <meta name="theme-color" content="#FFFFFF">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="P-MEDIS">
   <meta name="description" content="P-MEDIS - ระบบสารสนเทศเพื่อบริหารจัดการข้อมูลกำลังคนแพทย์ ในสังกัดสำนักงานสาธารณสุขจังหวัดปัตตานี">
   <meta name="referrer" content="no-referrer">
   <title>P-MEDIS - ระบบสารสนเทศเพื่อบริหารจัดการข้อมูลกำลังคนแพทย์ ในสังกัดสำนักงานสาธารณสุขจังหวัดปัตตานี</title>
   <link rel="preconnect" href="https://script.google.com">
   <link rel="preconnect" href="https://script.googleusercontent.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
 
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -20,8 +23,8 @@
     html, body {
       width: 100%;
       height: 100%;
-      height: 100dvh;          /* กัน address bar มือถือบัง */
-      overflow: hidden;        /* ไม่มี scrollbar */
+      height: 100dvh;
+      overflow: hidden;
       background: #ffffff;
       overscroll-behavior: none;
     }
@@ -30,70 +33,335 @@
       position: fixed;
       inset: 0;
       width: 100vw;
-      height: 100vh;           /* fallback เบราว์เซอร์เก่า */
+      height: 100vh;
       height: 100dvh;
       border: 0;
       display: block;
       background: #ffffff;
     }
 
-    /* ---------- Loading screen ---------- */
+    /* ================= Loading screen ================= */
     #loader {
       position: fixed;
       inset: 0;
       z-index: 10;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      padding: env(safe-area-inset-top) 24px env(safe-area-inset-bottom);
-      background: linear-gradient(160deg, #0f4c81 0%, #1b6fae 55%, #2a9d8f 100%);
-      color: #ffffff;
-      font-family: "Sarabun", "Noto Sans Thai", "Leelawadee UI", "Tahoma", sans-serif;
-      text-align: center;
+      overflow: hidden;
+      background: linear-gradient(180deg, #FFFFFF 0%, #FFFFFF 42%, #E6F7F6 100%);
+      font-family: 'IBM Plex Sans Thai', 'Leelawadee UI', Tahoma, sans-serif;
       transition: opacity .6s ease, visibility .6s ease;
     }
     #loader.hide { opacity: 0; visibility: hidden; pointer-events: none; }
 
-    .logo {
-      font-size: clamp(36px, 9vw, 56px);
+    /* ฉากลายเส้น 1920x1080 ย่อ/ขยายให้เต็มจอ (cover) ยึดขอบล่างกลางจอ */
+    #scene {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      width: 1920px;
+      height: 1080px;
+      transform-origin: 50% 100%;
+      transform: translateX(-50%);
+    }
+
+    /* ---------- โลโก้ + ข้อความ (responsive) ---------- */
+    #brand {
+      position: absolute;
+      left: 0; right: 0;
+      top: max(14vh, calc(env(safe-area-inset-top) + 32px));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+      padding: 0 20px;
+      z-index: 2;
+    }
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: clamp(18px, 3vw, 44px);
+    }
+    .brand-logo { width: clamp(96px, 11vw, 210px); height: auto; overflow: visible; }
+    .brand-text { display: flex; flex-direction: column; gap: 10px; }
+    .brand-title {
+      font-family: 'Sora', sans-serif;
       font-weight: 800;
-      letter-spacing: 2px;
+      font-size: clamp(44px, 5.4vw, 104px);
+      line-height: 1;
+      letter-spacing: -0.025em;
+      color: #0B2545;
     }
-    .subtitle {
-      max-width: 560px;
-      font-size: clamp(14px, 3.6vw, 17px);
-      line-height: 1.6;
-      opacity: .92;
+    .brand-title span { color: #D6336C; }
+    .brand-en {
+      font-family: 'Sora', sans-serif;
+      font-weight: 500;
+      font-size: clamp(10px, .9vw, 17px);
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: #0F766E;
     }
-    .spinner {
-      width: 46px;
-      height: 46px;
-      border: 4px solid rgba(255,255,255,.3);
-      border-top-color: #ffffff;
-      border-radius: 50%;
-      animation: spin .9s linear infinite;
+    .brand-th { font-size: clamp(14px, 1.15vw, 22px); font-weight: 500; color: #334E68; }
+    .status {
+      font-size: clamp(13px, .95vw, 16px);
+      color: #0F766E;
+      letter-spacing: .02em;
     }
-    .status { font-size: 14px; opacity: .8; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .status::after {
+      content: '';
+      display: inline-block;
+      width: 1.2em;
+      text-align: left;
+      animation: dots 1.4s steps(4, end) infinite;
+    }
+    @keyframes dots {
+      0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75%, 100% { content: '...'; }
+    }
+
+    @media (max-width: 640px) {
+      .brand-row { flex-direction: column; text-align: center; gap: 16px; }
+      .brand-text { align-items: center; }
+      .brand-en { letter-spacing: .18em; }
+    }
+
+    /* ---------- Animation ของโลโก้ ---------- */
+    .pm .pm-signal, .pm .pm-ring { opacity: 0; }
+    .pm-cross, .pm-dot, .pm-ring { transform-box: fill-box; transform-origin: center; }
+    .pm .pm-line   { stroke-dasharray: 100; animation: pmDraw 1.8s cubic-bezier(.65,0,.35,1) both; }
+    .pm .pm-signal { animation: pmSig 2.6s linear 1.9s infinite; }
+    .pm .pm-cross  { animation: pmBeat 1.3s ease-in-out 1.9s infinite; }
+    .pm .pm-dot    { animation: pmPop .5s ease-out 1.6s both; }
+    .pm .pm-ring   { animation: pmRing 1.3s ease-out 2s infinite; }
+    @keyframes pmDraw { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+    @keyframes pmSig  { 0% { stroke-dashoffset: 7; opacity: 1; } 100% { stroke-dashoffset: -93; opacity: 1; } }
+    @keyframes pmBeat { 0%,100% { transform: scale(1); } 14% { transform: scale(1.2); } 28% { transform: scale(1); } 42% { transform: scale(1.1); } 56% { transform: scale(1); } }
+    @keyframes pmPop  { 0% { transform: scale(0); } 70% { transform: scale(1.3); } 100% { transform: scale(1); } }
+    @keyframes pmRing { 0% { transform: scale(1); opacity: .75; } 100% { transform: scale(2.6); opacity: 0; } }
+
+    /* ---------- Animation ของฉากพื้นหลัง ---------- */
+    .bg-waves { animation: bgDrift 16s linear infinite; }
+    @keyframes bgDrift { from { transform: translateX(0); } to { transform: translateX(-160px); } }
+    .bg-boat { transform-origin: 50% 80%; animation: bgBob 5s ease-in-out infinite; }
+    @keyframes bgBob { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-7px) rotate(-0.8deg); } }
+    .bg-flower { transform-box: fill-box; transform-origin: center; animation: bgSway 10s ease-in-out infinite; }
+    @keyframes bgSway { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+    .bg-pulse { animation: bgPulse 7s linear infinite; }
+    @keyframes bgPulse { from { stroke-dashoffset: 4; } to { stroke-dashoffset: -96; } }
+    .bg-twinkle { animation: bgTw 4s ease-in-out infinite; }
+    @keyframes bgTw { 0%,100% { opacity: .35; } 50% { opacity: 1; } }
 
     @media (prefers-reduced-motion: reduce) {
-      .spinner { animation-duration: 2.5s; }
+      #loader *, #loader *::after { animation: none !important; }
       #loader { transition: none; }
+      .pm .pm-line { stroke-dashoffset: 0; }
     }
   </style>
 </head>
 <body>
 
   <div id="loader" role="status" aria-live="polite">
-    <div class="logo">P-MEDIS</div>
-    <div class="subtitle">
-      ระบบสารสนเทศเพื่อบริหารจัดการข้อมูลกำลังคนแพทย์<br>
-      ในสังกัดสำนักงานสาธารณสุขจังหวัดปัตตานี
+
+    <!-- ===== ฉากลายเส้นปัตตานี ===== -->
+    <div id="scene" aria-hidden="true">
+      <div style="position:absolute; inset:0; color:#0F766E; opacity:.3">
+
+        <svg class="bg-twinkle" width="28" height="28" viewBox="0 0 28 28" style="position:absolute; left:260px; top:170px"><path d="M14 4 V24 M4 14 H24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+        <svg class="bg-twinkle" width="20" height="20" viewBox="0 0 28 28" style="position:absolute; left:430px; top:430px; animation-delay:1.3s"><path d="M14 4 V24 M4 14 H24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+        <svg class="bg-twinkle" width="24" height="24" viewBox="0 0 28 28" style="position:absolute; left:1560px; top:360px; animation-delay:2.1s"><path d="M14 4 V24 M4 14 H24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+        <svg class="bg-twinkle" width="18" height="18" viewBox="0 0 28 28" style="position:absolute; left:1380px; top:540px; animation-delay:.7s"><path d="M14 4 V24 M4 14 H24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+        <svg width="160" height="40" viewBox="0 0 160 40" style="position:absolute; left:140px; top:300px"><path d="M0 22 H60 l8 -14 l10 26 l8 -12 H160" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg width="160" height="40" viewBox="0 0 160 40" style="position:absolute; left:1640px; top:470px"><path d="M0 22 H60 l8 -14 l10 26 l8 -12 H160" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+
+        <!-- ดอกไม้มุมขวาบน -->
+        <svg class="bg-flower" width="260" height="260" viewBox="-100 -100 200 200" style="position:absolute; right:-40px; top:-40px">
+          <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" transform="rotate(20)">
+            <path d="M0 -8 C -34 -24, -40 -78, 0 -88 C 40 -78, 34 -24, 0 -8 Z"/><path d="M0 -16 V-70"/>
+            <path transform="rotate(72)" d="M0 -8 C -34 -24, -40 -78, 0 -88 C 40 -78, 34 -24, 0 -8 Z"/><path transform="rotate(72)" d="M0 -16 V-70"/>
+            <path transform="rotate(144)" d="M0 -8 C -34 -24, -40 -78, 0 -88 C 40 -78, 34 -24, 0 -8 Z"/><path transform="rotate(144)" d="M0 -16 V-70"/>
+            <path transform="rotate(216)" d="M0 -8 C -34 -24, -40 -78, 0 -88 C 40 -78, 34 -24, 0 -8 Z"/><path transform="rotate(216)" d="M0 -16 V-70"/>
+            <path transform="rotate(288)" d="M0 -8 C -34 -24, -40 -78, 0 -88 C 40 -78, 34 -24, 0 -8 Z"/><path transform="rotate(288)" d="M0 -16 V-70"/>
+            <circle r="11"/><path d="M0 -5 V5 M-5 0 H5"/>
+            <path d="M8 -6 C 26 -26, 40 -44, 58 -70"/><circle cx="60" cy="-74" r="3"/><circle cx="52" cy="-76" r="2.4"/><circle cx="64" cy="-66" r="2.4"/>
+          </g>
+        </svg>
+
+        <!-- วัดช้างไห้ -->
+        <svg width="340" height="300" viewBox="0 0 340 300" style="position:absolute; left:90px; bottom:220px">
+          <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M0 298 H340"/>
+            <path d="M40 298 V286 H250 V298"/>
+            <rect x="55" y="228" width="180" height="58"/>
+            <rect x="80" y="246" width="20" height="34" rx="10"/><rect x="130" y="238" width="30" height="48" rx="4"/><rect x="190" y="246" width="20" height="34" rx="10"/>
+            <path d="M30 230 L75 192 M260 230 L215 192 M30 230 H260"/>
+            <path d="M60 206 L145 82 L230 206"/>
+            <path d="M75 192 L145 96 L215 192 Z"/>
+            <path d="M95 192 L145 124 L195 192"/>
+            <circle cx="145" cy="166" r="11"/><circle cx="145" cy="166" r="4"/>
+            <path d="M145 82 C 145 66, 153 58, 163 56 C 158 62, 153 68, 151 78"/>
+            <path d="M60 206 C 52 202, 50 192, 57 189 M230 206 C 238 202, 240 192, 233 189"/>
+            <path d="M75 192 C 68 188, 66 180, 72 178 M215 192 C 222 188, 224 180, 218 178"/>
+            <path d="M270 298 V286 H330 V298 M276 286 V274 H324 V286"/>
+            <path d="M281 274 C 281 240, 292 226, 300 222 C 308 226, 319 240, 319 274 Z"/>
+            <rect x="292" y="210" width="16" height="12"/>
+            <path d="M300 210 V140 M293 200 H307 M295 190 H305 M297 180 H303 M298 170 H302"/>
+          </g>
+        </svg>
+
+        <!-- มัสยิดกลางปัตตานี -->
+        <svg width="420" height="300" viewBox="0 0 420 300" style="position:absolute; left:470px; bottom:220px">
+          <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M0 298 H420"/>
+            <rect x="30" y="90" width="20" height="208"/><path d="M24 140 H56 M24 205 H56"/>
+            <path d="M30 90 C 30 72, 40 64, 40 50 C 40 64, 50 72, 50 90 Z M40 50 V38"/>
+            <rect x="370" y="90" width="20" height="208"/><path d="M364 140 H396 M364 205 H396"/>
+            <path d="M370 90 C 370 72, 380 64, 380 50 C 380 64, 390 72, 390 90 Z M380 50 V38"/>
+            <rect x="80" y="170" width="260" height="128"/>
+            <path d="M100 298 V236 Q100 216 115 210 Q130 216 130 236 V298"/>
+            <path d="M145 298 V236 Q145 216 160 210 Q175 216 175 236 V298"/>
+            <path d="M245 298 V236 Q245 216 260 210 Q275 216 275 236 V298"/>
+            <path d="M290 298 V236 Q290 216 305 210 Q320 216 320 236 V298"/>
+            <path d="M188 298 V214 Q188 188 210 180 Q232 188 232 214 V298"/>
+            <rect x="95" y="152" width="20" height="18"/><path d="M95 152 C 95 138, 105 132, 105 122 C 105 132, 115 138, 115 152 Z"/>
+            <rect x="305" y="152" width="20" height="18"/><path d="M305 152 C 305 138, 315 132, 315 122 C 315 132, 325 138, 325 152 Z"/>
+            <rect x="160" y="135" width="100" height="35"/>
+            <path d="M156 135 C 150 92, 190 82, 210 42 C 230 82, 270 92, 264 135 Z"/>
+            <path d="M210 42 V24"/><circle cx="210" cy="19" r="4"/>
+            <path d="M170 150 H250"/>
+          </g>
+        </svg>
+
+        <!-- ศาลเจ้าแม่ลิ้มกอเหนี่ยว -->
+        <svg width="340" height="250" viewBox="0 0 360 260" style="position:absolute; left:1010px; bottom:220px">
+          <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M0 258 H360 M20 258 V244 H340 V258"/>
+            <rect x="50" y="140" width="260" height="104"/>
+            <rect x="70" y="140" width="10" height="104"/><rect x="120" y="140" width="10" height="104"/><rect x="230" y="140" width="10" height="104"/><rect x="280" y="140" width="10" height="104"/>
+            <rect x="150" y="178" width="60" height="66"/><path d="M180 178 V244"/>
+            <rect x="155" y="152" width="50" height="16"/>
+            <path d="M100 140 V154 M260 140 V154"/>
+            <ellipse cx="100" cy="166" rx="11" ry="12"/><path d="M90 166 H110 M100 178 V184"/>
+            <ellipse cx="260" cy="166" rx="11" ry="12"/><path d="M250 166 H270 M260 178 V184"/>
+            <path d="M30 140 Q180 124 330 140 M45 120 Q180 106 315 120 M45 120 L30 140 M315 120 L330 140"/>
+            <path d="M30 140 C 20 138, 12 128, 18 120 M330 140 C 340 138, 348 128, 342 120"/>
+            <path d="M70 100 Q180 86 290 100 M85 80 Q180 68 275 80 M85 80 L70 100 M275 80 L290 100"/>
+            <path d="M70 100 C 60 98, 54 88, 60 82 M290 100 C 300 98, 306 88, 300 82"/>
+            <path d="M85 80 C 78 70, 80 60, 90 58 M275 80 C 282 70, 280 60, 270 58"/>
+            <path d="M110 74 C 120 58, 140 68, 150 60 C 155 55, 160 57, 166 62"/>
+            <path d="M250 74 C 240 58, 220 68, 210 60 C 205 55, 200 57, 194 62"/>
+            <circle cx="180" cy="58" r="8"/><path d="M180 46 V40 M172 50 L168 45 M188 50 L192 45"/>
+          </g>
+        </svg>
+
+        <!-- ปืนใหญ่พญาตานี -->
+        <svg width="380" height="140" viewBox="0 0 380 140" style="position:absolute; left:1440px; bottom:220px">
+          <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M0 138 H380"/>
+            <circle cx="22" cy="73" r="10"/><path d="M32 73 H40"/>
+            <path d="M40 50 L330 60 L330 84 L40 96 C 30 91, 30 55, 40 50 Z"/>
+            <path d="M330 56 L352 51 L352 93 L330 88"/><ellipse cx="352" cy="72" rx="4" ry="20"/>
+            <path d="M80 51.4 V94.3 M86 51.6 V94"/>
+            <path d="M140 53.4 V91.9"/>
+            <path d="M200 55.5 V89.4 M206 55.7 V89.2"/>
+            <path d="M260 57.6 V86.9"/>
+            <path d="M300 59 V85.2 M306 59.2 V85"/>
+            <circle cx="60" cy="73" r="6"/><path d="M60 64 V82 M51 73 H69"/>
+            <path d="M232 66 C 240 60, 248 60, 254 66"/>
+            <path d="M120 93 L104 128 H236 L220 90"/>
+            <rect x="80" y="128" width="220" height="10"/>
+          </g>
+        </svg>
+
+        <!-- เส้นชีพจร -->
+        <svg width="1920" height="40" viewBox="0 0 1920 40" style="position:absolute; left:0; top:842px">
+          <path d="M0 18 H920 l12 -14 l16 30 l12 -16 H1920" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+
+        <!-- คลื่นทะเล -->
+        <svg class="bg-waves" width="2240" height="220" viewBox="0 0 2240 220" style="position:absolute; left:0; top:860px">
+          <g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <path d="M0 50 q40 -10 80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0"/>
+            <path d="M-40 105 q40 -8 80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0" opacity="0.8"/>
+            <path d="M0 160 q40 -6 80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0" opacity="0.6"/>
+          </g>
+        </svg>
+
+        <!-- ดอกไม้มุมซ้ายล่าง -->
+        <svg class="bg-flower" width="300" height="300" viewBox="-100 -100 200 200" style="position:absolute; left:-70px; bottom:-70px">
+          <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="rotate(-15)">
+            <path d="M0 -8 C -34 -24, -40 -78, 0 -88 C 40 -78, 34 -24, 0 -8 Z"/><path d="M0 -16 V-70"/>
+            <path transform="rotate(72)" d="M0 -8 C -34 -24, -40 -78, 0 -88 C 40 -78, 34 -24, 0 -8 Z"/><path transform="rotate(72)" d="M0 -16 V-70"/>
+            <path transform="rotate(144)" d="M0 -8 C -34 -24, -40 -78, 0 -88 C 40 -78, 34 -24, 0 -8 Z"/><path transform="rotate(144)" d="M0 -16 V-70"/>
+            <path transform="rotate(216)" d="M0 -8 C -34 -24, -40 -78, 0 -88 C 40 -78, 34 -24, 0 -8 Z"/><path transform="rotate(216)" d="M0 -16 V-70"/>
+            <path transform="rotate(288)" d="M0 -8 C -34 -24, -40 -78, 0 -88 C 40 -78, 34 -24, 0 -8 Z"/><path transform="rotate(288)" d="M0 -16 V-70"/>
+            <circle r="11"/><path d="M0 -5 V5 M-5 0 H5"/>
+            <path d="M8 -6 C 26 -26, 40 -44, 58 -70"/><circle cx="60" cy="-74" r="3"/><circle cx="52" cy="-76" r="2.4"/><circle cx="64" cy="-66" r="2.4"/>
+          </g>
+        </svg>
+
+        <!-- ดอกไม้มุมขวาล่าง -->
+        <svg class="bg-flower" width="200" height="200" viewBox="-100 -100 200 200" style="position:absolute; right:-30px; bottom:-20px; animation-delay:-4s">
+          <g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" transform="rotate(40)">
+            <path d="M0 -8 C -34 -24, -40 -78, 0 -88 C 40 -78, 34 -24, 0 -8 Z"/>
+            <path transform="rotate(72)" d="M0 -8 C -34 -24, -40 -78, 0 -88 C 40 -78, 34 -24, 0 -8 Z"/>
+            <path transform="rotate(144)" d="M0 -8 C -34 -24, -40 -78, 0 -88 C 40 -78, 34 -24, 0 -8 Z"/>
+            <path transform="rotate(216)" d="M0 -8 C -34 -24, -40 -78, 0 -88 C 40 -78, 34 -24, 0 -8 Z"/>
+            <path transform="rotate(288)" d="M0 -8 C -34 -24, -40 -78, 0 -88 C 40 -78, 34 -24, 0 -8 Z"/>
+            <circle r="11"/><path d="M0 -5 V5 M-5 0 H5"/>
+            <path d="M8 -6 C 26 -26, 40 -44, 58 -70"/><circle cx="60" cy="-74" r="3"/>
+          </g>
+        </svg>
+      </div>
+
+      <div style="position:absolute; left:0; right:0; top:860px; height:220px; background:linear-gradient(180deg, rgba(230,247,246,0) 0%, rgba(230,247,246,.6) 100%)"></div>
+
+      <!-- จุดแสงวิ่งบนเส้นชีพจร -->
+      <svg width="1920" height="40" viewBox="0 0 1920 40" style="position:absolute; left:0; top:842px; overflow:visible">
+        <path class="bg-pulse" pathLength="100" d="M0 18 H920 l12 -14 l16 30 l12 -16 H1920" fill="none" stroke="#D6336C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 96" stroke-dashoffset="4" opacity="0.7"/>
+      </svg>
+
+      <!-- เรือกอและ -->
+      <div class="bg-boat" style="position:absolute; left:580px; top:812px; width:760px; height:280px; color:#0F766E; opacity:.54">
+        <svg width="760" height="280" viewBox="0 -30 760 280">
+          <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M50 70 C 80 150, 200 215, 380 220 C 560 215, 680 150, 710 60"/>
+            <path d="M70 110 C 180 175, 580 175, 690 100"/>
+            <path d="M70 110 L50 70 C 40 50, 46 30, 66 30 C 80 30, 82 46, 70 50"/>
+            <path d="M690 100 L710 60 C 722 36, 716 10, 692 8 C 672 8, 668 30, 684 34"/>
+            <path d="M700 12 C 712 -4, 734 -10, 750 -2 L 730 8 C 722 12, 716 16, 712 24"/>
+            <circle cx="724" cy="2" r="2.5"/>
+            <path d="M58 60 C 48 46, 52 36, 62 38"/>
+            <path d="M100 150 C 220 202, 540 202, 660 142"/>
+            <path d="M130 178 C 250 222, 510 222, 630 170" stroke-width="1.6"/>
+            <circle cx="180" cy="158" r="8"/><circle cx="180" cy="158" r="2.5"/>
+            <circle cx="280" cy="174" r="8"/><circle cx="280" cy="174" r="2.5"/>
+            <circle cx="380" cy="178" r="8"/><path d="M380 172 V184 M374 178 H386"/>
+            <circle cx="480" cy="174" r="8"/><circle cx="480" cy="174" r="2.5"/>
+            <circle cx="580" cy="158" r="8"/><circle cx="580" cy="158" r="2.5"/>
+            <path d="M200 170 q15 -8 30 0 t30 0 M300 182 q15 -8 30 0 t30 0 M400 182 q15 -8 30 0 t30 0 M500 170 q15 -8 30 0 t30 0" stroke-width="1.6"/>
+            <path d="M110 140 L82 238 L98 241 L118 150"/>
+            <path d="M380 140 V-10 M380 -10 L470 110 L384 122"/>
+          </g>
+        </svg>
+      </div>
     </div>
-    <div class="spinner" aria-hidden="true"></div>
-    <div class="status" id="status">กำลังโหลดระบบ...</div>
+
+    <!-- ===== โลโก้ + ชื่อระบบ ===== -->
+    <div id="brand">
+      <div class="brand-row">
+        <svg class="pm brand-logo" viewBox="0 0 120 120" role="img" aria-label="สัญลักษณ์ P-MEDIS">
+          <defs><linearGradient id="gBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#14B8A6"/><stop offset="1" stop-color="#0B3B6B"/></linearGradient></defs>
+          <path class="pm-line" pathLength="100" d="M34 100 V44 A26 26 0 1 1 60 70 H68 L74 58 L82 84 L88 70 H96" fill="none" stroke="url(#gBg)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+          <path class="pm-signal" pathLength="100" d="M34 100 V44 A26 26 0 1 1 60 70 H68 L74 58 L82 84 L88 70 H96" fill="none" stroke="#FFFFFF" stroke-opacity="0.9" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 93"/>
+          <g class="pm-cross"><rect x="57" y="35" width="6" height="18" rx="2" fill="#D6336C"/><rect x="51" y="41" width="18" height="6" rx="2" fill="#D6336C"/></g>
+          <circle class="pm-ring" cx="110" cy="70" r="6" fill="none" stroke="#D6336C" stroke-width="2"/>
+          <circle class="pm-dot" cx="110" cy="70" r="6" fill="#D6336C"/>
+        </svg>
+        <div class="brand-text">
+          <div class="brand-title">P<span>-</span>MEDIS</div>
+          <div class="brand-en">Pattani Medical Information System</div>
+          <div class="brand-th">ระบบบริหารกำลังคนแพทย์ จังหวัดปัตตานี</div>
+        </div>
+      </div>
+      <div class="status" id="status">กำลังโหลดระบบ</div>
+    </div>
   </div>
 
   <iframe
@@ -107,7 +375,7 @@
 
   <script>
     (function () {
-      // URL จริงของ Apps Script (ประกอบตอนรันเพื่อไม่ให้อยู่ใน HTML attribute ตรง ๆ)
+      // URL จริงของ Apps Script
       var parts = [
         "https://script.google.com/macros/s/",
         "AKfycbxeiyD30KlozOmcJy7SlpwV5zbJmiNe9HskGBqEBPyJEk14HBthA7i58F0m9T7cgUg",
@@ -117,22 +385,30 @@
       var frame  = document.getElementById("app");
       var loader = document.getElementById("loader");
       var status = document.getElementById("status");
+      var scene  = document.getElementById("scene");
       var done = false;
+
+      // ย่อ/ขยายฉาก 1920x1080 ให้เต็มจอทุกขนาด (แบบ cover)
+      function fitScene() {
+        var s = Math.max(window.innerWidth / 1920, window.innerHeight / 1080);
+        scene.style.transform = "translateX(-50%) scale(" + s + ")";
+      }
+      fitScene();
+      window.addEventListener("resize", fitScene);
 
       function hideLoader() {
         if (done) return;
         done = true;
         loader.classList.add("hide");
+        window.removeEventListener("resize", fitScene);
         setTimeout(function () { loader.style.display = "none"; }, 700);
       }
 
       frame.addEventListener("load", hideLoader);
 
-      // ข้อความแจ้งเมื่อโหลดนาน และ fallback ปิด loading กันค้าง
-      setTimeout(function () { if (!done) status.textContent = "กำลังเชื่อมต่อ กรุณารอสักครู่..."; }, 6000);
+      setTimeout(function () { if (!done) status.textContent = "กำลังเชื่อมต่อ กรุณารอสักครู่"; }, 6000);
       setTimeout(hideLoader, 25000);
 
-      // ส่งต่อ query string ของโดเมนคุณไปยัง Apps Script (เช่น ?page=report)
       frame.src = parts.join("") + (location.search || "");
     })();
   </script>
